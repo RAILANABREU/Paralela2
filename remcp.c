@@ -46,6 +46,26 @@ static ssize_t robust_write(int fd, const void *buf, size_t count)
     return total;
 }
 
+void display_progress(size_t sent, size_t total)
+{
+    float progress = (float)sent / total * 100;
+    int bar_width = 50; // Tamanho da barra de progresso
+    int pos = (int)(bar_width * progress / 100.0);
+
+    printf("\r[");
+    for (int i = 0; i < bar_width; i++)
+    {
+        if (i < pos)
+            printf("=");
+        else if (i == pos)
+            printf(">");
+        else
+            printf(" ");
+    }
+    printf("] %.2f%%", progress);
+    fflush(stdout);
+}
+
 int main(int argc, char *argv[])
 {
     if (argc != 3)
@@ -84,6 +104,8 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    printf("Conexão com o servidor %s realizada com sucesso.\n", ip);
+
     // Envia o nome do arquivo
     size_t fname_len = strlen(filename);
     if (robust_write(sockfd, filename, fname_len) != (ssize_t)fname_len)
@@ -111,6 +133,9 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    // Obtém o tamanho total do arquivo
+    fseeko(f, 0, SEEK_END);
+    off_t total_size = ftello(f);
     if (fseeko(f, offset_servidor, SEEK_SET) < 0)
     {
         perror("Erro no fseeko");
@@ -119,8 +144,12 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    // Exibe progresso enquanto envia o arquivo
+    printf("Iniciando envio do arquivo...\n");
     char buffer[BUFSZ];
     size_t r;
+    off_t bytes_sent = offset_servidor;
+
     while ((r = fread(buffer, 1, BUFSZ, f)) > 0)
     {
         if (robust_write(sockfd, buffer, r) != (ssize_t)r)
@@ -130,6 +159,8 @@ int main(int argc, char *argv[])
             close(sockfd);
             exit(1);
         }
+        bytes_sent += r;
+        display_progress(bytes_sent, total_size);
     }
 
     if (ferror(f))
@@ -139,5 +170,7 @@ int main(int argc, char *argv[])
 
     fclose(f);
     close(sockfd);
+
+    printf("\nArquivo enviado com sucesso.\n");
     return 0;
 }
