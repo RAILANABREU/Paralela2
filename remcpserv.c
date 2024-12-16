@@ -88,6 +88,10 @@ int main()
             continue;
         }
 
+        printf("Conexão aceita de %s:%d\n",
+               inet_ntoa(cli_addr.sin_addr),
+               ntohs(cli_addr.sin_port));
+
         pid_t pid = fork();
         if (pid < 0)
         {
@@ -145,6 +149,8 @@ int main()
                 exit(1);
             }
 
+            printf("Recebendo arquivo: %s\n", filename);
+
             // Recebe o arquivo do cliente
             char buffer[BUFSZ];
             for (;;)
@@ -183,6 +189,10 @@ int main()
             if (rename(partname, final_path) < 0)
             {
                 perror("Erro ao renomear arquivo final");
+            }
+            else
+            {
+                printf("Arquivo salvo com sucesso em: %s\n", final_path);
             }
 
             close(newsockfd);
