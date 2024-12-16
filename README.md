@@ -58,7 +58,7 @@ Use o comando abaixo para enviar um arquivo ao servidor:
 Por exemplo, se o servidor estiver rodando no mesmo dispositivo (localhost) e o arquivo for `BigBig.txt`:
 
 ```bash
-./client 127.0.0.1 BigBig.txt
+./client 127.0.0.1 teste.txt
 ```
 
 ---
@@ -69,7 +69,7 @@ Por exemplo, se o servidor estiver rodando no mesmo dispositivo (localhost) e o 
 Se o servidor não estiver rodando, o cliente exibirá a seguinte mensagem de erro:
 
 ```bash
-./client 127.0.0.1 BigBig.txt
+./client 127.0.0.1 teste.txt
 Erro na conexão: Connection refused
 ```
 
@@ -79,7 +79,7 @@ Erro na conexão: Connection refused
 Com o servidor rodando, o cliente exibirá:
 
 ```bash
-./client 127.0.0.1 BigBig.txt
+./client 127.0.0.1 teste.txt
 Conexão com o servidor 127.0.0.1 realizada com sucesso.
 Iniciando envio do arquivo...
 [========================>                         ] 48.03%
@@ -97,14 +97,14 @@ Quando o cliente se conecta, o servidor exibe:
 ```plaintext
 Servidor aguardando conexões na porta 9000...
 Conexão aceita de 127.0.0.1:59086
-Recebendo arquivo: BigBig.txt
+Recebendo arquivo: teste.txt
 ```
 
 ### **Servidor Salvando o Arquivo**
 Ao finalizar o envio, o servidor exibirá:
 
 ```plaintext
-Arquivo salvo com sucesso em: /Users/railanabreu/Downloads/BigBig.txt
+Arquivo salvo com sucesso em: /"HOME"/Downloads/teste.txt
 ```
 
 ---
@@ -260,38 +260,14 @@ O cliente:
 
 ---
 
-## 6. Pontos de Atenção
+## 6. Conclusão
 
-1. **Segurança**
-   - O código não inclui autenticação ou criptografia, tornando-o vulnerável em redes não seguras.
+Os códigos apresentados fornecem uma base funcional para transferências de arquivos em um ambiente cliente-servidor. Eles demonstram conceitos importantes, como manipulação de sockets, escrita robusta e tratamento de processos paralelos. Com pequenos ajustes, podem ser facilmente adaptados para aplicações práticas em redes confiáveis.
 
-2. **Diretório de Salvamento**
-   - Os arquivos são salvos diretamente no diretório `Downloads`. Para ambientes reais, seria ideal configurar um diretório dedicado.
+Durante os testes, utilizamos um arquivo chamado `BigBig.txt` com 580 MB de dados. O sistema foi capaz de criar o arquivo `.part` diretamente no diretório `Downloads` da máquina enquanto a transferência estava em andamento. Também implementamos uma barra de progresso para acompanhar visualmente o envio dos dados.
 
-3. **Limitação de Tamanho**
-   - O tamanho máximo do nome do arquivo é limitado a `1024 bytes`.
+Um ponto interessante observado foi a capacidade do sistema de retomar a transferência do ponto exato onde foi interrompida. Ao interromper o servidor durante a transferência, o cliente parou de enviar os dados. Quando o servidor foi reiniciado e o cliente foi reexecutado, a transferência continuou do ponto onde havia parado, graças ao uso de offsets. 
 
-4. **Performance**
-   - A leitura e escrita em chunks de `128 bytes` podem ser ajustadas para melhorar a performance em redes mais rápidas.
+Embora tenhamos considerado implementar um timeout no cliente para aguardar automaticamente o retorno do servidor, acabamos não seguindo adiante devido à complexidade que isso acrescentaria ao projeto, considerando nosso nível de experiência. Atualmente, o cliente precisa ser reiniciado manualmente após o servidor voltar, mas o sistema funciona bem dentro dessa limitação.
 
----
-
-## 7. Melhorias Futuras
-
-1. **Criptografia**
-   - Adicionar suporte a TLS para proteger a comunicação entre cliente e servidor.
-
-2. **Compressão**
-   - Implementar compressão de dados para reduzir o tempo de transferência.
-
-3. **Validação de Arquivos**
-   - Incluir verificações de integridade (como hash MD5) para garantir que os arquivos foram transferidos corretamente.
-
-4. **Interface**
-   - Fornecer uma interface gráfica ou baseada em menus para facilitar o uso do cliente.
-
----
-
-## 8. Conclusão
-
-Os códigos apresentados fornecem uma base funcional para transferências de arquivos em um ambiente cliente-servidor. Eles demonstram conceitos importantes como manipulação de sockets, escrita robusta e tratamento de processos paralelos. Com ajustes simples, podem ser adaptados para aplicações práticas em redes confiáveis.
+Com isso, conseguimos validar que o sistema é robusto, confiável e atende ao propósito proposto, mesmo em cenários de interrupção da transferência. Há espaço para melhorias, mas o projeto cumpre seu objetivo de maneira funcional e clara.
